@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Component 1 · Live GPS Mobility Simulator</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <style>
+    :root{font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:#172033;background:#f4f6fa}
+    *{box-sizing:border-box}body{margin:0}.top{padding:16px 22px;background:#101827;color:#fff;display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap}
+    h1{font-size:18px;margin:0 0 4px}.sub{font-size:12px;color:#b8c3d6}.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:14px;padding:14px;height:calc(100vh - 76px);min-height:520px}
+    #map{height:100%;min-height:480px;border-radius:14px;box-shadow:0 2px 12px #18243a18;background:#e7edf3}.panel{background:#fff;border:1px solid #e3e8f0;border-radius:14px;padding:16px;overflow:auto}
+    .controls{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 16px}button,select{border:1px solid #d4dce8;border-radius:8px;padding:9px 12px;background:#fff;color:#172033;font-weight:600;cursor:pointer}button.primary{background:#2563eb;border-color:#2563eb;color:#fff}button:disabled{opacity:.45;cursor:not-allowed}
+    .stats{display:grid;grid-template-columns:1fr 1fr;gap:9px}.stat{background:#f5f7fb;border-radius:10px;padding:11px}.num{font-size:22px;font-weight:750;font-variant-numeric:tabular-nums}.lbl{font-size:11px;color:#68758b;margin-top:3px}
+    .section{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#718096;font-weight:700;margin:18px 0 8px}.status{display:flex;align-items:center;gap:7px;font-size:12px;color:#526078}.dot{width:8px;height:8px;border-radius:50%;background:#94a3b8}.dot.live{background:#16a34a;box-shadow:0 0 0 4px #16a34a22}
+    .legend{display:flex;gap:12px;font-size:12px;color:#657189}.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;background:#2563eb;margin-right:5px}.note{font-size:12px;line-height:1.5;color:#68758b}.leaflet-popup-content{font-size:12px}
+    @media(max-width:850px){.layout{grid-template-columns:1fr;height:auto}.panel{order:-1}#map{height:58vh;min-height:400px}}
+  </style>
+</head>
+<body>
+<header class="top"><div><h1>Component 1 · Live GPS Mobility Simulator</h1><div class="sub">Live vehicle dots · GPS-only output · source-agnostic interface</div></div><div class="status"><span id="liveDot" class="dot"></span><span id="status">Ready to start</span></div></header>
+<main class="layout">
+  <div id="map" aria-label="Live map showing simulated GPS devices"></div>
+  <aside class="panel">
+    <div class="section" style="margin-top:0">Simulation controls</div>
+    <div class="controls"><button id="start" class="primary">▶ Start</button><button id="pause" disabled>Ⅱ Pause view</button><button id="stop" disabled>■ Stop</button></div>
+    <label class="section" for="speed">Simulation playback speed</label>
+    <select id="speed"><option value="0.5">0.5× (slow)</option><option value="1" selected>1× (real time)</option><option value="2">2×</option><option value="5">5×</option><option value="10">10×</option></select>
+    <div class="section">Live statistics</div>
+    <div class="stats">
+      <div class="stat"><div class="num" id="vehicles">0</div><div class="lbl">Devices observed</div></div>
+      <div class="stat"><div class="num" id="fixes">0</div><div class="lbl">GPS fixes received</div></div>
+      <div class="stat"><div class="num" id="dots">0</div><div class="lbl">Dots on map</div></div>
+      <div class="stat"><div class="num" id="last">—</div><div class="lbl">Latest update (sim s)</div></div>
+    </div>
+    <div class="section">Simulation clock</div><div class="num" id="clock">00:00:00</div>
+    <div class="section">Map legend</div><div class="legend"><span><i></i>Latest GPS position</span></div>
+    <div class="section">GPS data contract</div><p class="note"><b>device_id · timestamp · latitude · longitude</b><br>Only these four fields are sent to the visualizer and downstream components. Speed, route, road ID and vehicle state are not exposed. Dashboard statistics are computed from the received GPS fixes only.</p>
+    <div class="section">Map source</div><p class="note">OpenStreetMap tiles are loaded from the internet. The blue dots are simulated GPS observations, not live real-world vehicles. If tiles are unavailable, the simulator stream still runs.</p>
+    <div class="section">Network</div><p class="note" id="network">Not started</p>
+  </aside>
+</main>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+  const map=L.map('map',{preferCanvas:true}).setView([44.4949,11.3426],13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(map);
+  const markers=new Map(), lastSeenSim=new Map(); let source=null, paused=false, latestBatch=null, seen=new Set(), fixCount=0;
+  const $=id=>document.getElementById(id);
+  function setStatus(s,live=false){$('status').textContent=s;$('liveDot').className='dot'+(live?' live':'')}
+  function render(data){
+    if(data.type==='meta'){$('network').textContent=data.network+' · '+data.speed_multiplier+'× playback';if(data.center){map.setView([data.center.lat,data.center.lon],13)}return}
+    if(data.type==='error'){setStatus('Error: '+data.message);stop();return}
+    if(data.type==='complete'){setStatus('Simulation completed');stop(false);return}
+    if(data.type!=='positions')return;
+    for(const p of data.observations){
+      seen.add(p.device_id); lastSeenSim.set(p.device_id, data.sim_time_s||0); let marker=markers.get(p.device_id);
+      if(!marker){marker=L.circleMarker([p.latitude,p.longitude],{radius:4,weight:1,color:'#fff',fillColor:'#2563eb',fillOpacity:.88}).addTo(map);markers.set(p.device_id,marker);marker.bindPopup('Device: '+p.device_id+'<br>Time: '+p.timestamp)}
+      else marker.setLatLng([p.latitude,p.longitude]);
+    }
+    for(const [id,last] of lastSeenSim){if((data.sim_time_s||0)-last>60){const old=markers.get(id);if(old)map.removeLayer(old);markers.delete(id);lastSeenSim.delete(id)}}
+    fixCount+=data.observations.length;$('vehicles').textContent=seen.size.toLocaleString();$('fixes').textContent=fixCount.toLocaleString();$('dots').textContent=markers.size.toLocaleString();$('last').textContent=String(Math.floor(data.sim_time_s||0));
+    const s=Math.floor(data.sim_time_s||0);$('clock').textContent=[Math.floor(s/3600),Math.floor(s%3600/60),s%60].map(n=>String(n).padStart(2,'0')).join(':');
+  }
+  function stop(update=true){if(source){source.close();source=null} $('start').disabled=false;$('pause').disabled=true;$('stop').disabled=true;if(update)setStatus('Stopped')}
+  $('start').onclick=()=>{if(source)return;markers.forEach(m=>map.removeLayer(m));markers.clear();lastSeenSim.clear();seen.clear();$('vehicles').textContent='0';$('fixes').textContent='0';$('dots').textContent='0';$('last').textContent='—';fixCount=0;$('clock').textContent='00:00:00';paused=false;$('pause').textContent='Ⅱ Pause view';$('start').disabled=true;$('pause').disabled=false;$('stop').disabled=false;setStatus('Connecting…',true);
+    source=new EventSource('/stream?duration=3600&speed='+encodeURIComponent($('speed').value));source.onmessage=e=>{const d=JSON.parse(e.data);if(paused){latestBatch=d;return}render(d)};source.onerror=()=>{if(source){setStatus('Connection interrupted');stop(false)}};
+  };
+  $('pause').onclick=()=>{paused=!paused;$('pause').textContent=paused?'▶ Resume view':'Ⅱ Pause view';if(!paused&&latestBatch){render(latestBatch);latestBatch=null}setStatus(paused?'View paused (simulation continues)':'Streaming GPS positions',!paused)};
+  $('stop').onclick=()=>stop();
+</script>
+</body></html>

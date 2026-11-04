@@ -1,0 +1,68 @@
+
+# ==========================
+# Python virtual environments
+# ==========================
+.venv/
+venv/
+env/
+
+# ==========================
+# Python cache and compiled files
+# ==========================
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# ==========================
+# Environment variables / secrets
+# ==========================
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ==========================
+# Generated simulation outputs
+# ==========================
+component_1/data/*.csv
+component_1/data/*.csv.gz
+component_1/data/*.parquet
+component_1/data/*.log
+component_1/data/*.tmp
+
+# SUMO generated outputs
+*.tripinfo.xml
+*.emissions.xml
+*.fcd.xml
+*.netstate.xml
+*.queue.xml
+*.statistic.xml
+*.summary.xml
+*.log.txt
+
+# Temporary route and simulation files
+*.rou.alt.xml
+*.rou.temp.xml
+
+# ==========================
+# Python editor / operating system
+# ==========================
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ==========================
+# Archives and temporary files
+# ==========================
+*.zip
+*.bak
+*.tmp
+*.swp

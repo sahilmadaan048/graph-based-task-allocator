@@ -1,0 +1,44 @@
+{
+  "source": "synthetic radial/ring fallback (NOT TAPASCologne)",
+  "requested_duration_s": 2400,
+  "simulated_duration_s": 2400.0,
+  "wall_clock_s": 23.279,
+  "gps_records": 1437527,
+  "unique_devices_observed": 1302,
+  "output_schema": [
+    "device_id",
+    "timestamp",
+    "latitude",
+    "longitude"
+  ],
+  "downstream_payload_contains_only_gps_fields": true,
+  "config_seed": 7,
+  "density_multiplier": 1.3,
+  "dataset_scale": 1.0,
+  "effective_empirical_arrival_multiplier": 1.3,
+  "gps_noise_model": "per-device AR(1) correlated coordinate error",
+  "gps_noise_std_m": 3.0,
+  "gps_noise_correlation": 0.98,
+  "gps_reporting_interval_s": 1,
+  "exit_semantics": "device stops emitting GPS fixes after its simulated trip ends; downstream must apply a no-fix timeout",
+  "simulator_spawned_total": 1302,
+  "simulator_exited_total": 237,
+  "peak_concurrent_driving": 426,
+  "final_counts": {
+    "driving": 411,
+    "parked": 398,
+    "garage": 256,
+    "queued_at_entry": 0,
+    "spawned_total": 1302,
+    "exited_total": 237
+  },
+  "first_observed_device_ids_per_10min": {
+    "0": 330,
+    "1": 318,
+    "2": 336,
+    "3": 318
+  },
+  "dataset_demand_metadata": null,
+  "output_file": "data/vehicle_positions_gps_only.csv.gz",
+  "warning": "This run validates the simulator only; it does not use TAPASCologne data."
+}
