@@ -11,7 +11,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--config', default='config/sim_config.json')
     ap.add_argument('--net', help='TAPASCologne SUMO .net.xml')
-    ap.add_argument('--routes', help='TAPASCologne SUMO .rou.xml (24h route file recommended)')
+    ap.add_argument('--routes', help='TAPASCologne SUMO .rou.xml, .trips.xml, or route-demand XML')
     ap.add_argument('--output', default='data/vehicle_positions.csv.gz')
     ap.add_argument('--summary', default='data/run_summary.json')
     ap.add_argument('--duration', type=int, help='Override duration in seconds')

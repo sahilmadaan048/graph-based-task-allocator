@@ -1,0 +1,77 @@
+{
+  "_note": "Synthetic fallback values are assumptions. For TAPASCologne, demand and OD distributions are extracted from SUMO route files. Main experiment density_multiplier=1.3 means 30% above the selected route-file baseline; it is not SUMO --scale 0.3. TAPASCologne cologne6to8.trips.xml departs 06:00-07:59:59; this dedicated config aligns the simulation clock to that two-hour window.",
+  "seed": 7,
+  "region": {
+    "center": {
+      "lat": 44.4949,
+      "lon": 11.3426
+    }
+  },
+  "network": {
+    "spokes": 8,
+    "spoke_radii_m": [
+      400,
+      800,
+      1200,
+      1600,
+      2200,
+      3000,
+      3800,
+      4500
+    ],
+    "ring_radius_m": 1600,
+    "ring_nodes_between_spokes": 2,
+    "connector_radii_m": [
+      400,
+      800,
+      1200,
+      3000
+    ],
+    "speed_kmh": {
+      "inner": 40,
+      "ring": 50,
+      "outer": 60
+    }
+  },
+  "sim": {
+    "dt_s": 1.0,
+    "duration_s": 7200,
+    "start_datetime": "2026-01-01T06:00:00"
+  },
+  "arrivals": {
+    "peak_per_hour": 1800,
+    "density_multiplier": 1.3,
+    "peak_hour": 8.0,
+    "width_h": 0.9,
+    "floor": 0.35,
+    "burstiness_sigma": 0.3,
+    "dataset_scale": 1.0
+  },
+  "driving": {
+    "intersection_stop_prob": 0.35,
+    "stop_wait_s": [
+      3,
+      12
+    ],
+    "accel_noise_std": 0.15,
+    "lane_offset_m": 1.75
+  },
+  "behaviour": {
+    "rest_prob": 0.75,
+    "garage_prob": 0.3,
+    "parked_median_s": 900,
+    "garage_median_s": 2400,
+    "rest_sigma": 0.8,
+    "extra_trips_probs": [
+      0.5,
+      0.35,
+      0.15
+    ],
+    "initial_resting_mean": 60
+  },
+  "gps": {
+    "noise_std_m": 3.0,
+    "reporting_interval_s": 1,
+    "noise_correlation": 0.98
+  }
+}

@@ -14,17 +14,17 @@ No vehicle speed, acceleration, heading, route, road-edge ID, destination, parki
 
 ## Dataset / research input
 
-TAPASCologne is used as an **offline scenario input** for road topology and travel-demand patterns, not as a runtime sensor and not as the GNN input schema. The adapter reads SUMO `.net.xml` and `.rou.xml` files. The rule-based engine generates new paths and GPS observations; it does not replay the original trajectories. See `COMPONENT_1_RESEARCH.md` for research lineage, changes and limitations.
+TAPASCologne is used as an **offline scenario input** for road topology and travel-demand patterns, not as a runtime sensor and not as the GNN input schema. The adapter reads SUMO `.net.xml` and route-demand XML, including `.rou.xml` and TAPASCologne `.trips.xml` files. The rule-based engine generates new paths and GPS observations; it does not replay the original trajectories. See `COMPONENT_1_RESEARCH.md` for research lineage, changes and limitations.
 
-Download the scenario from [the official SUMO scenario folder](https://sourceforge.net/projects/sumo/files/traffic_data/scenarios/TAPASCologne/), extract the network and 24-hour route files, then run:
+Download the scenario from [the official SUMO scenario folder](https://sourceforge.net/projects/sumo/files/traffic_data/scenarios/TAPASCologne/), extract the network and route/trip demand files, then run:
 
 ```bash
 pip install -r requirements.txt
 python run_simulation.py \
   --config config/sim_config.json \
   --net /path/to/Cologne.net.xml \
-  --routes /path/to/Cologne.rou.xml \
-  --duration 3600
+  --routes /path/to/Cologne6to8.trips.xml \
+  --duration 7200
 ```
 
 Without `--net` and `--routes`, the simulator uses the synthetic radial/ring fallback for demonstrations and software tests. Such a run must not be described as a TAPASCologne-driven run.
@@ -61,10 +61,10 @@ pip install -r requirements.txt
 python run_dashboard.py --host 127.0.0.1 --port 8050
 ```
 
-For the TAPASCologne map, configure the files at server startup:
+For the TAPASCologne map, configure the network and a supported route/trip demand file at server startup:
 
 ```bash
-python run_dashboard.py --host 127.0.0.1 --port 8050 --net /path/to/Cologne.net.xml --routes /path/to/Cologne.rou.xml
+python run_dashboard.py --host 127.0.0.1 --port 8050 --net /path/to/Cologne.net.xml --routes /path/to/Cologne6to8.trips.xml
 ```
 
 The dashboard refuses non-loopback bind addresses. Do not expose this development server to a public network.

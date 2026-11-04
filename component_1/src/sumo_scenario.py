@@ -123,8 +123,8 @@ def load_tapas_demand(route_file: str | Path, net: RoadNetwork,
                       edge_id_to_idx: dict[str, int]) -> dict:
     """Extract departure histogram and empirical OD weights from SUMO routes.
 
-    Supports explicit <vehicle><route edges="..."/></vehicle> and
-    <vehicle route="routeId"/> records. Route definitions are indexed first;
+    Supports explicit <vehicle><route edges="..."/></vehicle>,
+    <vehicle route="routeId"/>, <flow>, and SUMO <trip from="..." to="..."/> records. Route definitions are indexed first;
     vehicle records are then streamed to keep memory use moderate.
     """
     route_file = Path(route_file)
@@ -148,7 +148,7 @@ def load_tapas_demand(route_file: str | Path, net: RoadNetwork,
             elif el.tag == "route" and len(stack) >= 2 and stack[-2] == "vehicle":
                 inline_route_edges = el.get("edges", "").split()
             continue
-        if el.tag in ("vehicle", "flow"):
+        if el.tag in ("vehicle", "flow", "trip"):
             edges = inline_route_edges or []
             if not edges and el.get("route"):
                 edges = route_defs.get(el.get("route"), [])

@@ -59,3 +59,23 @@ def test_sumo_projection_and_polyline_shape_are_preserved(tmp_path: Path):
     sim = VehicleSimulation(cfg, net=net)
     assert sim.resting == []  # empirical trip demand does not invent initial residents
     assert sim._new_vehicle().trips_left == 0  # one observed OD trip, no synthetic extra legs
+
+
+def test_tapas_trip_records_are_loaded(tmp_path: Path):
+    net = tmp_path / "trips.net.xml"
+    trips = tmp_path / "trips.xml"
+    net.write_text('''<net><location netOffset="0,0" projParameter="+proj=utm +zone=32 +ellps=WGS84 +datum=WGS84 +units=m +no_defs +type=crs"/>
+      <junction id="a" x="0" y="0"/><junction id="b" x="100" y="0"/><junction id="c" x="200" y="0"/>
+      <edge id="e0" from="a" to="b"><lane id="e0_0" speed="13.9" length="100"/></edge>
+      <edge id="e1" from="b" to="c"><lane id="e1_0" speed="13.9" length="100"/></edge>
+    </net>''')
+    trips.write_text('''<trips>
+      <trip id="t0" depart="21600.00" from="e0" to="e1" type="pkw"/>
+      <trip id="t1" depart="22200.00" from="e0" to="e1" type="pkw"/>
+    </trips>''')
+    network, meta = load_tapas_scenario(net, trips)
+    assert meta["accepted_route_records"] == 2
+    assert meta["total_departures"] == 2
+    assert meta["departure_counts_per_10min"][36] == 1
+    assert meta["departure_counts_per_10min"][37] == 1
+    assert network.empirical_demand is True
