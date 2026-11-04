@@ -83,24 +83,92 @@ def load_sumo_network(net_file: str | Path) -> tuple[RoadNetwork, dict[str, int]
             if "passenger" in disallow or "all" in disallow: continue
             usable.append(lane)
         if not usable: continue
-        speeds, lengths, shapes = [], [], []
+        
+        u, v = node_id_to_idx[u_id], node_id_to_idx[v_id]
+
+        speeds = []
+        lengths = []
+        lane_shapes = []
+
         for lane in usable:
             try:
-                speeds.append(float(lane.get("speed", "13.89")))
-                lengths.append(float(lane.get("length", "0")))
-            except ValueError: pass
-            shp = _shape_xy(lane.get("shape") or el.get("shape") or "")
-            if len(shp) >= 2: shapes.append(shp)
-        if not speeds: continue
-        u, v = node_id_to_idx[u_id], node_id_to_idx[v_id]
+                lane_speed = float(lane.get("speed", "13.89"))
+                lane_length = float(lane.get("length", "0"))
+            except ValueError:
+                continue
+
+            speeds.append(lane_speed)
+            lengths.append(lane_length)
+
+            raw_shape = _shape_xy(
+                lane.get("shape") or el.get("shape") or ""
+            )
+
+            if len(raw_shape) >= 2:
+                # Convert lane geometry into the centered local frame.
+                local_shape = [
+                    (x - cx, y - cy)
+                    for x, y in raw_shape
+                ]
+
+                # Connect the lane geometry to its SUMO junctions.
+                complete_shape = [
+                    net.nodes[u],
+                    *local_shape,
+                    net.nodes[v],
+                ]
+
+                # Remove consecutive duplicate points.
+                compact_shape = [complete_shape[0]]
+
+                for point in complete_shape[1:]:
+                    if math.dist(compact_shape[-1], point) > 1e-6:
+                        compact_shape.append(point)
+
+                if len(compact_shape) >= 2:
+                    shape_length = sum(
+                        math.dist(a, b)
+                        for a, b in zip(
+                            compact_shape,
+                            compact_shape[1:]
+                        )
+                    )
+
+                    lane_shapes.append(
+                        (shape_length, tuple(compact_shape))
+                    )
+
+        if not speeds:
+            continue
+
         geom_len = math.dist(net.nodes[u], net.nodes[v])
-        length = max(float(np.mean(lengths)) if lengths else 0.0, geom_len, 1.0)
-        # Convert the chosen lane polyline to the same centered local frame.
-        raw_shape = shapes[0] if shapes else [(coords[u][0], coords[u][1]), (coords[v][0], coords[v][1])]
-        shape = tuple((x-cx, y-cy) for x, y in raw_shape)
-        edge_idx = len(net.edges); edge_id_to_idx[eid] = edge_idx; edge_xml_by_id[eid] = el
-        net.edges.append(Edge(edge_idx, u, v, length, max(speeds), shape))
+
+        length = max(
+            float(np.mean(lengths)) if lengths else 0.0,
+            geom_len,
+            1.0,
+        )
+
+        if lane_shapes:
+            # Select the complete lane geometry closest to the
+            # movement distance used by the simulator.
+            shape_length, shape = min(
+                lane_shapes,
+                key=lambda item: abs(item[0] - length),
+            )
+        else:
+            shape = (net.nodes[u], net.nodes[v])
+
+        edge_idx = len(net.edges)
+        edge_id_to_idx[eid] = edge_idx
+        edge_xml_by_id[eid] = el
+
+        net.edges.append(
+            Edge(edge_idx, u, v, length, max(speeds), shape)
+        )
+
         net.out_edges[u].append(edge_idx)
+
     if not net.edges: raise ValueError(f"No usable passenger road edges found in {net_file}")
 
     connections = root.findall("connection")

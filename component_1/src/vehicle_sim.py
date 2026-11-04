@@ -394,6 +394,12 @@ class VehicleSimulation:
         exits = self._handle_edge_ends()
         self.t += dt
 
+        # Exit observations belong to the end of this simulation step.
+        for record in exits:
+            record["timestamp"] = (
+                self.t0 + timedelta(seconds=self.t)
+            ).isoformat()
+
         gi = self.cfg["gps"].get("reporting_interval_s", self.cfg["gps"].get("driving_interval_s", 1))
         tick = int(round(self.t))
         recs = []
