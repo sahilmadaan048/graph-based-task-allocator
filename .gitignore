@@ -69,4 +69,7 @@ desktop.ini
 
 
 
-datasets/
+# Large TAPASCologne dataset
+datasets/TAPASCologne/*.xml
+datasets/TAPASCologne/*.csv
+datasets/TAPASCologne/*.csv.gz
