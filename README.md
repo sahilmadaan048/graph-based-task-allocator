@@ -441,8 +441,6 @@ These comparisons use TAPAS-derived reference patterns. They do not constitute i
 
 Detailed documentation for Component 1 is available separately.
 
-Once the files are added to the repository under `docs/`, use the following links:
-
 | Document | Contents |
 |---|---|
 | [Setup Guide](component_1/documentation/SETUP_GUIDE.md) | Environment setup, dependencies, SUMO installation, dataset preparation, and execution commands |
