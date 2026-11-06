@@ -36,6 +36,7 @@ class Vehicle:
     pos: float = 0.0
     speed: float = 0.0
     state: str = "pending"    # pending | driving | parked | garage | exited
+    has_entered_city: bool = False
     to_gate: bool = False
     stop_at_end: bool = False
     stop_wait: float = 0.0
@@ -61,6 +62,9 @@ class VehicleSimulation:
         self.resting: list[Vehicle] = []
         self.n_spawned = 0
         self.n_exited = 0
+
+        # Internal validation log; never included in GPS observations.
+        self.spawn_events = []
         self.burst = 1.0
         self._gps_error: dict[str, tuple[float, float]] = {}
         self._issued_ids: set[str] = set()
@@ -81,6 +85,10 @@ class VehicleSimulation:
                        if supplied_dest_w is not None else w / w.sum())
         self.od_dest_weights = getattr(self.net, "od_dest_weights", {})
         self._init_residents()
+
+    def _desired_speed(self, v, e):
+            base_speed = min(e.speed_limit, 130.0 / 3.6)
+            return min(base_speed * v.v0_factor, e.speed_limit)
 
     # ---------- helpers ----------
     def _new_device_id(self) -> str:
@@ -192,13 +200,28 @@ class VehicleSimulation:
     def _try_spawn(self, v: Vehicle) -> bool:
         e = self.net.edges[v.route[0]]
         lane = self.edge_veh[e.eid]
+
         if lane and min(o.pos for o in lane) < v.length + v.s0 + 2:
             return False  # entry blocked (queue at the gate)
+
         v.idx, v.pos, v.state = 0, 0.0, "driving"
-        v.speed = min(8.0, e.speed_limit * v.v0_factor)
+        v.speed = min(8.0, self._desired_speed(v, e))
         self._draw_stop(v)
+
         lane.append(v)
         self.active_edge_ids.add(e.eid)
+
+        # Record only the vehicle's first successful city entry.
+        if not v.has_entered_city:
+            self.spawn_events.append({
+                "device_id": v.vid,
+                "simulation_time_s": self.t,
+                "timestamp": (
+                    self.t0 + timedelta(seconds=self.t)
+                ).isoformat()
+            })
+            v.has_entered_city = True
+
         return True
 
     def arrival_rate(self) -> float:
@@ -233,7 +256,7 @@ class VehicleSimulation:
         return gap, lv
 
     def _accel(self, v: Vehicle, e, gap, lv) -> float:
-        v0 = e.speed_limit * v.v0_factor
+        v0 = self._desired_speed(v, e)
         free = 1.0 - (v.speed / v0) ** 4
         if gap is None:
             a = v.a_max * free

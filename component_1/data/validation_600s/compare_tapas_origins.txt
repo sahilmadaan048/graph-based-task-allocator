@@ -1,0 +1,35 @@
+
+===== TAPAS ORIGIN vs GPS DISTRIBUTION =====
+TAPAS trips in first 10 minutes: 11514
+Origins without usable geometry: 0
+GPS occupied cells: 406
+TAPAS origin cells: 334
+
+Top 10 TAPAS origin cells:
+(487, 5673) Trip origins: 172
+(491, 5670) Trip origins: 149
+(488, 5668) Trip origins: 147
+(487, 5672) Trip origins: 141
+(491, 5672) Trip origins: 139
+(487, 5669) Trip origins: 134
+(486, 5670) Trip origins: 131
+(485, 5671) Trip origins: 129
+(492, 5666) Trip origins: 124
+(496, 5665) Trip origins: 123
+
+Top 10 GPS cells by unique vehicles:
+(487, 5669) Unique vehicles: 527
+(486, 5669) Unique vehicles: 469
+(485, 5671) Unique vehicles: 458
+(486, 5670) Unique vehicles: 440
+(486, 5668) Unique vehicles: 415
+(485, 5672) Unique vehicles: 407
+(487, 5671) Unique vehicles: 398
+(487, 5672) Unique vehicles: 397
+(485, 5668) Unique vehicles: 374
+(487, 5668) Unique vehicles: 366
+
+Cells appearing in both distributions: 330
+TAPAS origin cells with GPS coverage: 98.8 %
+
+===== COMPARISON COMPLETE =====

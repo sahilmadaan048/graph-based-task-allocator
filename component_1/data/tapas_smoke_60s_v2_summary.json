@@ -2,7 +2,7 @@
   "source": "TAPASCologne SUMO network + route demand",
   "requested_duration_s": 60,
   "simulated_duration_s": 60.0,
-  "wall_clock_s": 35.842,
+  "wall_clock_s": 32.344,
   "gps_records": 46321,
   "unique_devices_observed": 1489,
   "output_schema": [

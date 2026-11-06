@@ -1,0 +1,8 @@
+
+===== SPATIAL DISTRIBUTION METRICS =====
+Grid cells compared: 410
+Pearson correlation: 0.8161
+Spearman correlation: 0.8273
+Top 20 cell overlap: 11 / 20
+
+===== COMPLETE =====

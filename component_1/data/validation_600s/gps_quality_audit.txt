@@ -1,0 +1,15 @@
+Schema: ['device_id', 'timestamp', 'latitude', 'longitude']
+Schema correct: True
+
+========== GPS QUALITY AUDIT ==========
+Total records: 46321
+Unique devices: 1489
+Invalid records: 0
+Duplicate device/timestamp pairs: 0
+Intervals greater than 1.01 seconds: 0
+Derived speed samples: 44832
+Median speed (m/s): 8.68
+95th percentile (m/s): 15.41
+Maximum speed (m/s): 32.55
+Transitions above 55 m/s: 0
+Transitions above 40 m/s: 0

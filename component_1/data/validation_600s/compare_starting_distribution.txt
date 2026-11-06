@@ -1,0 +1,42 @@
+
+===== STARTING DISTRIBUTION COMPARISON =====
+TAPAS trips: 11514
+Missing origin geometries: 0
+Vehicles with first GPS observation: 13853
+
+Occupied cells:
+TAPAS origin cells: 334
+GPS starting cells: 328
+Common cells: 312
+
+Correlation:
+Pearson: 0.9576
+Spearman: 0.9526
+
+Top-20 overlap: 13 / 20
+
+Top 10 TAPAS origin cells:
+(487, 5673) Trips: 172
+(491, 5670) Trips: 149
+(488, 5668) Trips: 147
+(487, 5672) Trips: 141
+(491, 5672) Trips: 139
+(487, 5669) Trips: 134
+(486, 5670) Trips: 131
+(485, 5671) Trips: 129
+(492, 5666) Trips: 124
+(496, 5665) Trips: 123
+
+Top 10 GPS starting cells:
+(485, 5671) Vehicles: 198
+(485, 5668) Vehicles: 195
+(488, 5668) Vehicles: 189
+(487, 5673) Vehicles: 185
+(485, 5672) Vehicles: 182
+(487, 5669) Vehicles: 177
+(486, 5670) Vehicles: 175
+(491, 5670) Vehicles: 172
+(487, 5671) Vehicles: 166
+(487, 5672) Vehicles: 163
+
+===== COMPARISON COMPLETE =====

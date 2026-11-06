@@ -1,0 +1,23 @@
+
+===== SPATIAL COVERAGE AUDIT =====
+GPS records: 4023356
+Unique vehicles: 13853
+Occupied 1km grid cells: 406
+
+Geographic bounds:
+Latitude: 50.829254 to 51.089189
+Longitude: 6.811168 to 7.114496
+
+Top 10 cells by unique vehicles:
+(487, 5669) Unique vehicles: 527
+(486, 5669) Unique vehicles: 469
+(485, 5671) Unique vehicles: 458
+(486, 5670) Unique vehicles: 440
+(486, 5668) Unique vehicles: 415
+(485, 5672) Unique vehicles: 407
+(487, 5671) Unique vehicles: 398
+(487, 5672) Unique vehicles: 397
+(485, 5668) Unique vehicles: 374
+(487, 5668) Unique vehicles: 366
+
+===== AUDIT COMPLETE =====

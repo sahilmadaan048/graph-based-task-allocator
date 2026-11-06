@@ -143,21 +143,55 @@ def load_sumo_network(net_file: str | Path) -> tuple[RoadNetwork, dict[str, int]
 
         geom_len = math.dist(net.nodes[u], net.nodes[v])
 
-        length = max(
-            float(np.mean(lengths)) if lengths else 0.0,
-            geom_len,
-            1.0,
-        )
-
         if lane_shapes:
             # Select the complete lane geometry closest to the
-            # movement distance used by the simulator.
+            # original movement-length estimate.
+            estimated_length = max(
+                float(np.mean(lengths)) if lengths else 0.0,
+                geom_len,
+                1.0,
+            )
+
             shape_length, shape = min(
                 lane_shapes,
-                key=lambda item: abs(item[0] - length),
+                key=lambda item: abs(item[0] - estimated_length),
             )
+
+            # Movement distance must match the geometry distance.
+            # Otherwise GPS interpolation can exaggerate or
+            # underestimate vehicle movement.
+            length = max(float(shape_length), 1.0)
+
         else:
             shape = (net.nodes[u], net.nodes[v])
+            length = max(
+                float(np.mean(lengths)) if lengths else 0.0,
+                geom_len,
+                1.0,
+            )
+
+        # if len(net.edges) == 64509:
+        #     print("\n========== EDGE 64509 SOURCE DIAGNOSTIC ==========")
+        #     print("Original SUMO edge ID:", eid)
+        #     print("Original edge attributes:", el.attrib)
+        #     print("Original lane attributes:")
+
+        #     for lane in el.findall("lane"):
+        #         print(lane.attrib)
+
+        #     print("Lane lengths:", lengths)
+        #     print("Endpoint distance:", geom_len)
+        #     print(
+        #         "Available lane geometry lengths:",
+        #         [round(item[0], 3) for item in lane_shapes],
+        #     )
+
+        #     if lane_shapes:
+        #         print("Selected geometry length:", shape_length)
+
+        #     print("=================================================\n")
+
+
 
         edge_idx = len(net.edges)
         edge_id_to_idx[eid] = edge_idx

@@ -1,0 +1,1 @@
+python -c "import json; from pathlib import Path; p=Path('data/gps_only_run_summary.json'); d=json.loads(p.read_text()); print(json.dumps(d,indent=2))"

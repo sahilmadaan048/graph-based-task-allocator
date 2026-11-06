@@ -1,0 +1,11 @@
+
+===== ACTUAL SPAWN TEMPORAL AUDIT =====
+Interval: 06:00–06:10
+TAPAS departures: 11514
+Density multiplier: 1.3
+Dataset scale: 1.0
+Expected scaled entries: 14968
+Actual successful first entries: 13853
+Count agreement: 92.55%
+=======================================
+

@@ -68,8 +68,4 @@ desktop.ini
 *.swp
 
 
-
-# Large TAPASCologne dataset
-datasets/TAPASCologne/*.xml
-datasets/TAPASCologne/*.csv
-datasets/TAPASCologne/*.csv.gz
+datasets/
